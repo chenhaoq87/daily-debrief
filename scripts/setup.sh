@@ -7,23 +7,94 @@ set -e
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$SKILL_DIR"
 
-echo "🔬 Research Agent Setup"
-echo "======================="
+echo "🔬 Research Agent Setup Wizard"
+echo "============================="
 echo
 
-# 1. Create config if needed
-if [ ! -f "config.json" ]; then
-    echo "📝 Creating config.json from template..."
-    cp config.example.json config.json
-    echo "✓ Created config.json"
-    echo
-    echo "⚠️  IMPORTANT: Edit config.json to set:"
-    echo "   - Your research domain keywords (default: Food Safety)"
-    echo "   - Telegram chatId (message @userinfobot)"
-    echo
+# 1. Custom Configuration
+echo "First, let's customize the agent for your research."
+echo
+
+# Ask for Domain Name
+read -p "What is your research domain name? (e.g., 'Quantum Computing'): " DOMAIN_NAME
+DOMAIN_NAME=${DOMAIN_NAME:-"Food Safety Research"} # Default
+
+# Ask for Keywords
+read -p "Enter 3-5 keywords for your field (comma separated): " KEYWORDS_INPUT
+if [ -z "$KEYWORDS_INPUT" ]; then
+    KEYWORDS_ARRAY='["machine learning", "deep learning", "food safety", "pathogen"]'
 else
-    echo "✓ config.json already exists"
+    # Transform comma-separated string into JSON array
+    # e.g. "a, b, c" -> ["a", "b", "c"]
+    KEYWORDS_ARRAY=$(echo "$KEYWORDS_INPUT" | sed 's/,/","/g' | sed 's/^/["/' | sed 's/$/"]/')
 fi
+
+# Ask for Telegram Chat ID
+read -p "Enter your Telegram Chat ID (optional, press Enter to skip): " TELEGRAM_ID
+
+# Create config.json from template with variable substitution
+echo
+echo "📝 Generating config.json..."
+
+cat > config.json <<EOF
+{
+  "domain": {
+    "name": "$DOMAIN_NAME",
+    "description": "Research papers related to $DOMAIN_NAME",
+    "keywords": {
+      "technical": [
+        "machine learning",
+        "deep learning",
+        "neural network",
+        "artificial intelligence"
+      ],
+      "domain": $KEYWORDS_ARRAY
+    },
+    "categories": [
+      "Key Research",
+      "Applications",
+      "Methods",
+      "Reviews",
+      "Other"
+    ]
+  },
+  "sources": {
+    "openalex": {
+      "enabled": true,
+      "perPage": 50
+    },
+    "arxiv": {
+      "enabled": true,
+      "categories": ["cs.CV", "cs.LG", "cs.AI", "cs.CL"]
+    }
+  },
+  "filters": {
+    "minRelevanceScore": 3,
+    "maxPapersPerDigest": 10
+  },
+  "authors": {
+    "watchlistPath": "authors_watchlist.json"
+  },
+  "agent": {
+    "comment": "This runs as a Clawdbot sub-agent. The agent (Claude) analyzes papers directly - no external LLM API needed!"
+  },
+  "output": {
+    "telegram": {
+      "enabled": $(if [ -n "$TELEGRAM_ID" ]; then echo "true"; else echo "false"; fi),
+      "chatId": "${TELEGRAM_ID:-"YOUR_CHAT_ID"}"
+    },
+    "saveToFile": true,
+    "filePath": "digests/"
+  },
+  "schedule": {
+    "cronExpression": "0 9 * * *",
+    "comment": "Daily at 9 AM. Change as needed."
+  }
+}
+EOF
+
+echo "✓ Config generated for domain: $DOMAIN_NAME"
+echo
 
 # 2. Create directories
 echo "📁 Creating data directories..."
