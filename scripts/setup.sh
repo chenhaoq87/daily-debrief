@@ -16,21 +16,25 @@ echo "First, let's customize the agent for your research."
 echo
 
 # Ask for Domain Name
-read -p "What is your research domain name? (e.g., 'Quantum Computing'): " DOMAIN_NAME
-DOMAIN_NAME=${DOMAIN_NAME:-"Food Safety Research"} # Default
+read -p "What is your research domain name? (Default: 'Food Safety'): " DOMAIN_NAME
+DOMAIN_NAME=${DOMAIN_NAME:-"Food Safety"}
 
-# Ask for Keywords
-read -p "Enter 3-5 keywords for your field (comma separated): " KEYWORDS_INPUT
-if [ -z "$KEYWORDS_INPUT" ]; then
-    KEYWORDS_ARRAY='["machine learning", "deep learning", "food safety", "pathogen"]'
+# Configure Keywords
+DEFAULT_KEYWORDS='["food safety", "pathogen", "salmonella", "e. coli", "listeria", "dairy", "meat"]'
+
+echo
+echo "Default keywords for $DOMAIN_NAME:"
+echo "  food safety, pathogen, salmonella, e. coli, listeria, dairy, meat"
+read -p "Do you want to use these defaults? (y/n): " USE_DEFAULTS
+
+if [ "$USE_DEFAULTS" = "y" ] || [ "$USE_DEFAULTS" = "Y" ] || [ -z "$USE_DEFAULTS" ]; then
+    KEYWORDS_ARRAY="$DEFAULT_KEYWORDS"
 else
+    echo
+    read -p "Enter your keywords (comma separated): " KEYWORDS_INPUT
     # Transform comma-separated string into JSON array
-    # e.g. "a, b, c" -> ["a", "b", "c"]
     KEYWORDS_ARRAY=$(echo "$KEYWORDS_INPUT" | sed 's/,/","/g' | sed 's/^/["/' | sed 's/$/"]/')
 fi
-
-# Ask for Telegram Chat ID
-read -p "Enter your Telegram Chat ID (optional, press Enter to skip): " TELEGRAM_ID
 
 # Create config.json from template with variable substitution
 echo
@@ -80,8 +84,8 @@ cat > config.json <<EOF
   },
   "output": {
     "telegram": {
-      "enabled": $(if [ -n "$TELEGRAM_ID" ]; then echo "true"; else echo "false"; fi),
-      "chatId": "${TELEGRAM_ID:-"YOUR_CHAT_ID"}"
+      "enabled": true,
+      "comment": "Uses Clawdbot's default messaging channel"
     },
     "saveToFile": true,
     "filePath": "digests/"
