@@ -18,8 +18,7 @@ if [ ! -f "config.json" ]; then
     echo "✓ Created config.json"
     echo
     echo "⚠️  IMPORTANT: Edit config.json to set:"
-    echo "   - Your research domain keywords"
-    echo "   - LLM API key (get free Gemini key at https://aistudio.google.com)"
+    echo "   - Your research domain keywords (default: Food Safety)"
     echo "   - Telegram chatId (message @userinfobot)"
     echo
 else
