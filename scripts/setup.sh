@@ -83,9 +83,10 @@ if [ "$SETUP_CRON" = "y" ] || [ "$SETUP_CRON" = "Y" ]; then
     
     # Use clawdbot cron to schedule
     clawdbot cron add \
-        --text "Run the research-agent skill to find yesterday's research papers, analyze them, and send me a digest" \
-        --schedule "$CRON_SCHEDULE" \
-        --context-messages 0
+        --name "research-agent-daily" \
+        --message "Run the research-agent skill to find yesterday's research papers, analyze them, and send me a digest" \
+        --cron "$CRON_SCHEDULE" \
+        --session isolated
     
     echo "✓ Cron job created!"
     echo
