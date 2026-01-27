@@ -1,0 +1,81 @@
+{
+  "domain": {
+    "name": "Food Safety Research",
+    "description": "AI/ML applications in food safety, quality assessment, and pathogen detection",
+    "keywords": {
+      "technical": [
+        "machine learning",
+        "deep learning",
+        "neural network",
+        "computer vision",
+        "convolutional",
+        "artificial intelligence",
+        "predictive model",
+        "spectroscopy",
+        "hyperspectral",
+        "sensor"
+      ],
+      "domain": [
+        "food safety",
+        "foodborne",
+        "pathogen",
+        "salmonella",
+        "e. coli",
+        "listeria",
+        "dairy",
+        "meat",
+        "quality assessment",
+        "spoilage",
+        "contamination",
+        "HACCP"
+      ]
+    },
+    "categories": [
+      "Pathogen Detection",
+      "Quality Assessment",
+      "Supply Chain Safety",
+      "Novel Sensors",
+      "Predictive Modeling",
+      "Other"
+    ]
+  },
+  "sources": {
+    "openalex": {
+      "enabled": true,
+      "perPage": 50
+    },
+    "arxiv": {
+      "enabled": true,
+      "categories": ["cs.CV", "cs.LG", "cs.AI"]
+    }
+  },
+  "filters": {
+    "minRelevanceScore": 3,
+    "maxPapersPerDigest": 10
+  },
+  "authors": {
+    "watchlistPath": "authors_watchlist.json"
+  },
+  "llm": {
+    "provider": "gemini",
+    "comment": "Options: gemini (free tier), openai, anthropic",
+    "apiKey": "YOUR_API_KEY_HERE",
+    "models": {
+      "gemini": "gemini-2.0-flash-exp",
+      "openai": "gpt-4o-mini",
+      "anthropic": "claude-3-5-haiku-20241022"
+    }
+  },
+  "output": {
+    "telegram": {
+      "enabled": true,
+      "chatId": "YOUR_TELEGRAM_CHAT_ID"
+    },
+    "saveToFile": true,
+    "filePath": "digests/"
+  },
+  "schedule": {
+    "cronExpression": "0 9 * * *",
+    "comment": "Daily at 9 AM. Change as needed."
+  }
+}

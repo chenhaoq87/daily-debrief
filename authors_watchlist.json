@@ -1,0 +1,9 @@
+{
+  "authors": [
+    {
+      "name": "Example Researcher",
+      "openalex_id": "",
+      "note": "Find OpenAlex IDs at https://openalex.org/authors - Search by name, copy the ID (e.g., A1234567890)"
+    }
+  ]
+}
