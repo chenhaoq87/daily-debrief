@@ -25,6 +25,26 @@ This isn't just a script that calls an LLM API. It is an **autonomous agent skil
 *   **Domain Agnostic**: Configurable for Food Safety, Physics, AI, Biology, etc.
 *   **No Extra Config**: Uses your existing Clawdbot LLM provider. No separate API keys to manage.
 
+## 🛠️ Available Tools
+
+The agent comes equipped with specialized tools to interface with academic databases:
+
+### 1. `scripts/fetch_openalex.js`
+*   **Purpose**: Search OpenAlex (250M+ works) for journal articles and conference papers.
+*   **Usage**: `node scripts/fetch_openalex.js <date> <keywords>`
+*   **Capabilities**: Filters by publication date, reconstructs abstracts from inverted indexes, and extracts author metadata.
+
+### 2. `scripts/fetch_arxiv.js`
+*   **Purpose**: Search arXiv for the latest preprints.
+*   **Usage**: `node scripts/fetch_arxiv.js <date> <categories> <keywords>`
+*   **Capabilities**: Filters by specific arXiv categories (e.g., `cs.CV`, `cs.LG`) AND keyword matches to ensure relevance.
+
+### 3. `scripts/setup.sh`
+*   **Purpose**: One-shot setup utility.
+*   **Capabilities**: Generates config files, creates data directories, and helps schedule the cron job.
+
+*Note: The agent also utilizes Clawdbot's native capabilities for file I/O and messaging.*
+
 ## 💰 Cost Note
 
 **This skill does not require a separate LLM API key.**
