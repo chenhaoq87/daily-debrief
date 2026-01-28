@@ -235,14 +235,15 @@ ${abstract.substring(0, 200)}...
 
 *🔥 Top 3 Trending Repos (Past Day)*
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💻 *${repo.name}*
 ⭐ ${repo.stars} stars | ${repo.language}
-
 ${repo.description}
-
 [View Repository](${repo.url})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+_(After listing all 3 repos, add an LLM-generated summary)_
+
+**Why these matter to you:**
+${one_paragraph_summary_explaining_relevance_to_your_research}
 
 (Analyzed ${totalCandidates} paper candidates, ${totalRepoCandidates} repos)
 ```
