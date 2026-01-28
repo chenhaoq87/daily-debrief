@@ -196,32 +196,9 @@ Only keep papers scoring >= `config.filters.minRelevanceScore`.
 
 **Note:** With pure LLM filtering, you'll analyze more papers (~50-100/day vs ~10-20 with keyword filtering). This increases API costs slightly (~$0.15-0.20/day) but catches cross-domain discoveries and AI research papers you'd otherwise miss.
 
-### 4. Analyze GitHub Repos with LLM
+### 4. Select Top 3 Trending Repos
 
-For each repository, analyze relevance similarly to papers:
-
-**Prompt yourself:**
-```
-Analyze this GitHub repository for ${config.domain.name} relevance:
-
-Name: ${repo.name}
-Description: ${repo.description}
-Language: ${repo.language}
-Topics: ${repo.topics.join(', ')}
-Stars: ${repo.stars}
-
-Rate 1-5:
-- 5 = Directly implements AI/ML for ${domain} (e.g., "Pathogen detection model")
-- 4 = Strong tool/library applicable to ${domain}
-- 3 = Moderate relevance (general ML framework with potential use)
-- 2 = Weak (tangentially related)
-- 1 = Not relevant
-
-Respond with JSON:
-{"relevance": <1-5>, "reasoning": "<one sentence>"}
-```
-
-Keep repos scoring >= 3 (lower threshold than papers since repos are rarer).
+Take the top 3 repos by stars from the fetch results. No LLM filtering needed - just show what's genuinely trending across all of tech/GitHub for that day.
 
 ### 5. Check for Duplicates
 
@@ -256,12 +233,11 @@ ${abstract.substring(0, 200)}...
 [Read Full Paper](${url})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-*GitHub Trending (${repos.length} relevant repos)*
+*🔥 Top 3 Trending Repos (Past Day)*
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💻 *${repo.name}*
 ⭐ ${repo.stars} stars | ${repo.language}
-🏷️ ${repo.topics.join(', ')}
 
 ${repo.description}
 
@@ -279,7 +255,7 @@ ${repo.description}
 - Predictive Modeling: 📈
 - Other: 📋
 
-Limit to `config.filters.maxPapersPerDigest` top papers and top 5 repos (highest relevance).
+Limit to `config.filters.maxPapersPerDigest` top papers and top 3 trending repos.
 
 ### 8. Deliver
 
@@ -344,13 +320,12 @@ If config.json doesn't exist:
 
 **You wake up and:**
 1. "Reading config.json... Domain: Food Safety Research"
-2. "Fetching yesterday's papers and GitHub repos (2026-01-26)..."
-3. "Found 47 candidates from OpenAlex, 3 from arXiv, 12 from GitHub"
+2. "Fetching yesterday's papers and trending GitHub repos (2026-01-26)..."
+3. "Found 47 candidates from OpenAlex, 3 from arXiv, 30 from GitHub"
 4. "Analyzing paper relevance..." (process each paper)
-5. "Analyzing repo relevance..." (process each repo)
-6. "3 papers scored 4+, 2 repos scored 3+, formatting digest..."
-7. "Posting to Telegram..." (use message tool)
-8. "Updating history... Done! 🎉"
+5. "3 papers scored 4+, selecting top 3 trending repos, formatting digest..."
+6. "Posting to Telegram..." (use message tool)
+7. "Updating history... Done! 🎉"
 
 **User wakes up to digest in Telegram. Zero interaction needed.**
 
