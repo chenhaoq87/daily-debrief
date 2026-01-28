@@ -132,19 +132,11 @@ node scripts/fetch_arxiv.js 2026-01-26 "cs.LG,cs.CV" "food,pathogen,dairy"
 
 Combine results into one array.
 
-### 3. Filter by Technical Keywords
+### 3. Analyze Relevance with LLM (YOUR INTELLIGENCE HERE)
 
-Only keep papers mentioning at least one technical keyword (machine learning, neural network, etc.) in title or abstract.
+**No keyword pre-filtering!** Pass ALL fetched papers directly to LLM for analysis.
 
-Use case-insensitive regex:
-```javascript
-const techRegex = new RegExp(config.domain.keywords.technical.join('|'), 'i');
-const match = (paper.title + ' ' + paper.abstract).match(techRegex);
-```
-
-### 4. Analyze Relevance (YOUR INTELLIGENCE HERE)
-
-For each candidate paper, analyze deeply:
+For each paper, analyze deeply:
 
 **Prompt yourself:**
 ```
@@ -170,17 +162,19 @@ Respond with JSON:
 
 Only keep papers scoring >= `config.filters.minRelevanceScore`.
 
-### 5. Check for Duplicates
+**Note:** With pure LLM filtering, you'll analyze more papers (~50-100/day vs ~10-20 with keyword filtering). This increases API costs slightly (~$0.15-0.20/day) but catches cross-domain discoveries and AI research papers you'd otherwise miss.
+
+### 4. Check for Duplicates
 
 Load `data/papers_history.jsonl` and skip papers you've already seen (by DOI or ID).
 
-### 6. Check Author Watchlist
+### 5. Check Author Watchlist
 
 For each paper, check if any author matches watchlist (by name or OpenAlex ID).
 
 Flag with `isWatchlistAuthor: true` and include author name.
 
-### 7. Format Digest
+### 6. Format Digest
 
 Create Telegram-formatted message:
 
@@ -214,7 +208,7 @@ ${abstract.substring(0, 200)}...
 
 Limit to `config.filters.maxPapersPerDigest` top papers (highest relevance).
 
-### 8. Deliver
+### 7. Deliver
 
 **Telegram:**
 Use the `message` tool:
@@ -230,7 +224,7 @@ message({
 **File:**
 Save to `${config.output.filePath}/digest_${date}.txt`
 
-### 9. Update History
+### 8. Update History
 
 Append each reported paper to `data/papers_history.jsonl`:
 ```bash
