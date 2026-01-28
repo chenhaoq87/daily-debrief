@@ -87,11 +87,11 @@ Both return standardized paper objects:
 
 ### Fetch GitHub Trending Repos
 
-**GitHub:**
+**GitHub Trending (Scraped):**
 ```bash
-node scripts/fetch_github_trending.js <date> <unused> [limit]
-# Returns: JSON array of repositories (fetches broadly, not confined to domain keywords)
-# LLM filters for relevance during analysis
+node scripts/fetch_github_trending.js [limit] [language]
+# Scrapes github.com/trending for today's trending repos
+# Returns: JSON array of repositories
 ```
 
 Returns standardized repository objects:
@@ -158,11 +158,11 @@ node scripts/fetch_openalex.js 2026-01-26 "food safety,pathogen,salmonella"
 # arXiv
 node scripts/fetch_arxiv.js 2026-01-26 "cs.LG,cs.CV" "food,pathogen,dairy"
 
-# GitHub Trending (fetches broadly - not confined to domain keywords)
-node scripts/fetch_github_trending.js 2026-01-26 "" 30
+# GitHub Trending (scrapes github.com/trending)
+node scripts/fetch_github_trending.js 30
 ```
 
-Combine papers into one array and keep repos separate for now. Repos are fetched broadly to catch valuable tools/frameworks outside your specific domain that might still be useful.
+Combine papers into one array and keep repos separate. Repos are scraped from GitHub's official trending page - no filtering needed, just take top N.
 
 ### 3. Analyze Relevance with LLM (YOUR INTELLIGENCE HERE)
 

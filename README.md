@@ -63,9 +63,9 @@ The agent comes equipped with specialized tools to interface with academic datab
 *   **Capabilities**: Filters by specific arXiv categories (e.g., `cs.CV`, `cs.LG`) AND keyword matches to ensure relevance.
 
 ### 3. `scripts/fetch_github_trending.js`
-*   **Purpose**: Fetch trending GitHub repositories from past day.
-*   **Usage**: `node scripts/fetch_github_trending.js <date> "" <limit>`
-*   **Capabilities**: Searches for repos with activity on target date (≥50 stars), sorted by star count. Returns top N trending repos broadly (not confined to domain keywords).
+*   **Purpose**: Scrape today's trending repositories from github.com/trending.
+*   **Usage**: `node scripts/fetch_github_trending.js [limit] [language]`
+*   **Capabilities**: Scrapes GitHub's official trending page, returns top N trending repos with stars, language, and description.
 
 ### 4. `scripts/setup.sh`
 *   **Purpose**: One-shot setup utility.

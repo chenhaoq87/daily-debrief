@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "github-trending-api": "^1.0.3"
+  }
+}
