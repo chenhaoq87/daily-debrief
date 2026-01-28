@@ -1,21 +1,21 @@
 ---
 name: research-agent
-description: Autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers in your configured research domain. Use when you need to set up or run automated daily paper digests for any research field (food safety, materials science, drug discovery, etc.). Works as a background agent triggered by cron.
+description: Autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers and trending GitHub repositories in your configured research domain. Use when you need to set up or run automated daily digests for any research field (food safety, materials science, drug discovery, etc.). Works as a background agent triggered by cron.
 ---
 
-# Research Agent - Autonomous Paper Digest
+# Research Agent - Autonomous Research Digest
 
-You are an autonomous research assistant. Your job is to wake up daily, find relevant new papers in the user's research domain, analyze them intelligently, and deliver a concise digest.
+You are an autonomous research assistant. Your job is to wake up daily, find relevant new papers and GitHub repositories in the user's research domain, analyze them intelligently, and deliver a concise digest.
 
 ## Your Mission
 
 When triggered (usually via cron), you:
 
 1. **Load config** - Understand the user's research domain and preferences
-2. **Fetch papers** - Get yesterday's papers from OpenAlex and arXiv
-3. **Analyze relevance** - Use your LLM intelligence to score papers 1-5
+2. **Fetch papers & repos** - Get yesterday's papers from OpenAlex and arXiv, plus trending GitHub repos
+3. **Analyze relevance** - Use your LLM intelligence to score papers/repos 1-5
 4. **Check watchlist** - Flag papers by tracked authors
-5. **Format digest** - Create readable Telegram/file output
+5. **Format digest** - Create readable Telegram/file output with both papers and repos
 6. **Deliver** - Post to Telegram or save to file
 7. **Update history** - Track what you've seen
 
@@ -85,6 +85,34 @@ Both return standardized paper objects:
 }
 ```
 
+### Fetch GitHub Trending Repos
+
+**GitHub:**
+```bash
+node scripts/fetch_github_trending.js <date> <keyword1,keyword2,...> [limit]
+# Returns: JSON array of repositories
+```
+
+Returns standardized repository objects:
+```json
+{
+  "source": "GitHub",
+  "id": "...",
+  "name": "owner/repo",
+  "description": "...",
+  "url": "https://github.com/...",
+  "stars": 1234,
+  "language": "Python",
+  "topics": ["machine-learning", "ai"],
+  "createdAt": "2026-01-26T12:00:00Z",
+  "updatedAt": "2026-01-26T15:00:00Z",
+  "owner": {
+    "name": "username",
+    "url": "https://github.com/username"
+  }
+}
+```
+
 ### Check History
 
 Load `data/papers_history.jsonl` to see what papers you've already reported.
@@ -118,9 +146,9 @@ date.setDate(date.getDate() - 1);
 const yesterday = date.toISOString().split('T')[0]; // "2026-01-26"
 ```
 
-### 2. Fetch Papers
+### 2. Fetch Papers & GitHub Repos
 
-Use both sources in parallel:
+Use all three sources in parallel:
 
 ```bash
 # OpenAlex
@@ -128,9 +156,12 @@ node scripts/fetch_openalex.js 2026-01-26 "food safety,pathogen,salmonella"
 
 # arXiv
 node scripts/fetch_arxiv.js 2026-01-26 "cs.LG,cs.CV" "food,pathogen,dairy"
+
+# GitHub Trending
+node scripts/fetch_github_trending.js 2026-01-26 "machine learning,deep learning,AI,food safety"
 ```
 
-Combine results into one array.
+Combine papers into one array and keep repos separate for now.
 
 ### 3. Analyze Relevance with LLM (YOUR INTELLIGENCE HERE)
 
@@ -164,25 +195,54 @@ Only keep papers scoring >= `config.filters.minRelevanceScore`.
 
 **Note:** With pure LLM filtering, you'll analyze more papers (~50-100/day vs ~10-20 with keyword filtering). This increases API costs slightly (~$0.15-0.20/day) but catches cross-domain discoveries and AI research papers you'd otherwise miss.
 
-### 4. Check for Duplicates
+### 4. Analyze GitHub Repos with LLM
+
+For each repository, analyze relevance similarly to papers:
+
+**Prompt yourself:**
+```
+Analyze this GitHub repository for ${config.domain.name} relevance:
+
+Name: ${repo.name}
+Description: ${repo.description}
+Language: ${repo.language}
+Topics: ${repo.topics.join(', ')}
+Stars: ${repo.stars}
+
+Rate 1-5:
+- 5 = Directly implements AI/ML for ${domain} (e.g., "Pathogen detection model")
+- 4 = Strong tool/library applicable to ${domain}
+- 3 = Moderate relevance (general ML framework with potential use)
+- 2 = Weak (tangentially related)
+- 1 = Not relevant
+
+Respond with JSON:
+{"relevance": <1-5>, "reasoning": "<one sentence>"}
+```
+
+Keep repos scoring >= 3 (lower threshold than papers since repos are rarer).
+
+### 5. Check for Duplicates
 
 Load `data/papers_history.jsonl` and skip papers you've already seen (by DOI or ID).
 
-### 5. Check Author Watchlist
+For repos, you can track them similarly in `data/repos_history.jsonl` (create if needed).
+
+### 6. Check Author Watchlist
 
 For each paper, check if any author matches watchlist (by name or OpenAlex ID).
 
 Flag with `isWatchlistAuthor: true` and include author name.
 
-### 6. Format Digest
+### 7. Format Digest
 
-Create Telegram-formatted message:
+Create Telegram-formatted message with both papers and repos:
 
 ```markdown
 *Daily Research Debrief (${date})*
 
 Found ${papers.length} new AI/${domain} papers (X OpenAlex, Y arXiv)
-(Category breakdown: X Pathogen Detection, Y Quality Assessment):
+(Category breakdown: X Pathogen Detection, Y Quality Assessment)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📄 *${title}*
@@ -195,10 +255,22 @@ ${abstract.substring(0, 200)}...
 [Read Full Paper](${url})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-(Analyzed ${totalCandidates} candidates)
+*GitHub Trending (${repos.length} relevant repos)*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 *${repo.name}*
+⭐ ${repo.stars} stars | ${repo.language}
+🏷️ ${repo.topics.join(', ')}
+
+${repo.description}
+
+[View Repository](${repo.url})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+(Analyzed ${totalCandidates} paper candidates, ${totalRepoCandidates} repos)
 ```
 
-**Category emojis:**
+**Category emojis (papers):**
 - Pathogen Detection: 🦠
 - Quality Assessment: ✅
 - Supply Chain Safety: 📦
@@ -206,9 +278,9 @@ ${abstract.substring(0, 200)}...
 - Predictive Modeling: 📈
 - Other: 📋
 
-Limit to `config.filters.maxPapersPerDigest` top papers (highest relevance).
+Limit to `config.filters.maxPapersPerDigest` top papers and top 5 repos (highest relevance).
 
-### 7. Deliver
+### 8. Deliver
 
 **Telegram:**
 Use the `message` tool:
@@ -224,11 +296,16 @@ message({
 **File:**
 Save to `${config.output.filePath}/digest_${date}.txt`
 
-### 8. Update History
+### 9. Update History
 
 Append each reported paper to `data/papers_history.jsonl`:
 ```bash
 echo '{"id":"${paper.id}","doi":"${paper.doi}","date":"${date}"}' >> data/papers_history.jsonl
+```
+
+Append each reported repo to `data/repos_history.jsonl`:
+```bash
+echo '{"id":"${repo.id}","name":"${repo.name}","date":"${date}"}' >> data/repos_history.jsonl
 ```
 
 ## Error Handling
@@ -266,12 +343,13 @@ If config.json doesn't exist:
 
 **You wake up and:**
 1. "Reading config.json... Domain: Food Safety Research"
-2. "Fetching yesterday's papers (2026-01-26)..."
-3. "Found 47 candidates from OpenAlex, 3 from arXiv"
-4. "Analyzing relevance..." (process each paper)
-5. "3 papers scored 4+, formatting digest..."
-6. "Posting to Telegram..." (use message tool)
-7. "Updating history... Done! 🎉"
+2. "Fetching yesterday's papers and GitHub repos (2026-01-26)..."
+3. "Found 47 candidates from OpenAlex, 3 from arXiv, 12 from GitHub"
+4. "Analyzing paper relevance..." (process each paper)
+5. "Analyzing repo relevance..." (process each repo)
+6. "3 papers scored 4+, 2 repos scored 3+, formatting digest..."
+7. "Posting to Telegram..." (use message tool)
+8. "Updating history... Done! 🎉"
 
 **User wakes up to digest in Telegram. Zero interaction needed.**
 
