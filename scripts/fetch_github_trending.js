@@ -17,10 +17,9 @@ async function fetchGitHubTrending(date, keywords, limit = 20) {
         }
     };
     
-    // Build search query: repos updated on date with keywords, sorted by stars
-    const keywordQuery = keywords.join(' ');
-    // Search for repos with active commits on the target date
-    const query = `${keywordQuery} pushed:${date} stars:>=10`;
+    // Build search query: trending repos across all tech/ML/AI, not confined to domain
+    // Fetch repos with significant activity on target date, sorted by stars
+    const query = `stars:>=50 pushed:${date}`;
     const searchUrl = `/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=${limit}`;
     
     return new Promise((resolve, reject) => {

@@ -89,8 +89,9 @@ Both return standardized paper objects:
 
 **GitHub:**
 ```bash
-node scripts/fetch_github_trending.js <date> <keyword1,keyword2,...> [limit]
-# Returns: JSON array of repositories
+node scripts/fetch_github_trending.js <date> <unused> [limit]
+# Returns: JSON array of repositories (fetches broadly, not confined to domain keywords)
+# LLM filters for relevance during analysis
 ```
 
 Returns standardized repository objects:
@@ -157,11 +158,11 @@ node scripts/fetch_openalex.js 2026-01-26 "food safety,pathogen,salmonella"
 # arXiv
 node scripts/fetch_arxiv.js 2026-01-26 "cs.LG,cs.CV" "food,pathogen,dairy"
 
-# GitHub Trending
-node scripts/fetch_github_trending.js 2026-01-26 "machine learning,deep learning,AI,food safety"
+# GitHub Trending (fetches broadly - not confined to domain keywords)
+node scripts/fetch_github_trending.js 2026-01-26 "" 30
 ```
 
-Combine papers into one array and keep repos separate for now.
+Combine papers into one array and keep repos separate for now. Repos are fetched broadly to catch valuable tools/frameworks outside your specific domain that might still be useful.
 
 ### 3. Analyze Relevance with LLM (YOUR INTELLIGENCE HERE)
 
