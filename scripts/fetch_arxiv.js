@@ -5,7 +5,7 @@
  * Returns: JSON array of papers
  */
 
-const https = require('https');
+const http = require('http');
 
 async function fetchArxiv(date, categories, keywords) {
     // arXiv categories like cs.LG, cs.CV, cs.AI
@@ -18,7 +18,7 @@ async function fetchArxiv(date, categories, keywords) {
     const url = `http://export.arxiv.org/api/query?search_query=${encodeURIComponent(searchQuery)}&start=0&max_results=20&sortBy=submittedDate&sortOrder=descending`;
     
     return new Promise((resolve, reject) => {
-        https.get(url.replace('https:', 'http:'), (res) => {
+        http.get(url, (res) => {
             let data = '';
             res.on('data', (chunk) => data += chunk);
             res.on('end', () => {

@@ -1,4 +1,7 @@
 config.json
+config.json.backup
+authors_watchlist.json
+authors_watchlist.json.backup
 data/
 digests/
 logs/

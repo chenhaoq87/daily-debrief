@@ -246,10 +246,25 @@ echo '{"id":"${paper.id}","doi":"${paper.doi}","date":"${date}"}' >> data/papers
 
 ## First-Time Setup
 
+**Recommended: Use the setup script**
+```bash
+cd skills/research-agent
+./scripts/setup.sh
+```
+
+The interactive setup will:
+1. Ask for research domain name
+2. Configure domain keywords
+3. **Prompt to add authors to watchlist** (new papers by these authors get flagged with 👤)
+4. Create necessary directories and files
+5. Optionally set up the daily cron job
+
+**Manual setup:**
 If config.json doesn't exist:
 1. Copy `config.example.json` to `config.json`
-2. Alert user to configure: domain keywords, LLM API key, Telegram chatId
-3. Wait for configuration before first run
+2. Alert user to configure: domain keywords, Telegram chatId (if using)
+3. Ask if they want to add any authors to `authors_watchlist.json`
+4. Wait for configuration before first run
 
 ## Example Agent Execution
 

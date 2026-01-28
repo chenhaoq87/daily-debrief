@@ -114,11 +114,43 @@ if [ ! -f "data/papers_history.jsonl" ]; then
     echo "✓ Created papers_history.jsonl"
 fi
 
-# 4. Create empty watchlist if needed
-if [ ! -f "authors_watchlist.json" ]; then
-    echo '{"authors":[]}' > authors_watchlist.json
-    echo "✓ Created authors_watchlist.json"
+# 4. Author Watchlist Setup
+echo "👤 Author Watchlist"
+echo "-------------------"
+echo "Do you want to track specific authors? The agent will flag their papers with 👤"
+read -p "(y/n): " SETUP_AUTHORS
+
+AUTHORS_JSON='{"authors":[]}'
+
+if [ "$SETUP_AUTHORS" = "y" ] || [ "$SETUP_AUTHORS" = "Y" ]; then
+    echo
+    echo "Enter author names (one per line). Press Enter with empty line when done:"
+    echo "(You can find OpenAlex IDs later at https://openalex.org/authors)"
+    echo
+    
+    AUTHORS_ARRAY="[]"
+    while true; do
+        read -p "Author name (or Enter to finish): " AUTHOR_NAME
+        if [ -z "$AUTHOR_NAME" ]; then
+            break
+        fi
+        
+        # Add author to array
+        if [ "$AUTHORS_ARRAY" = "[]" ]; then
+            AUTHORS_ARRAY='[{"name":"'"$AUTHOR_NAME"'","openalex_id":"","note":""}]'
+        else
+            # Append to existing array
+            AUTHORS_ARRAY=$(echo "$AUTHORS_ARRAY" | sed 's/]$/,{"name":"'"$AUTHOR_NAME"'","openalex_id":"","note":""}]/')
+        fi
+        echo "  ✓ Added: $AUTHOR_NAME"
+    done
+    
+    AUTHORS_JSON='{"authors":'"$AUTHORS_ARRAY"'}'
 fi
+
+echo "$AUTHORS_JSON" > authors_watchlist.json
+echo "✓ Created authors_watchlist.json"
+echo
 
 # 5. Make scripts executable
 chmod +x scripts/*.sh scripts/*.js 2>/dev/null || true
@@ -177,8 +209,8 @@ echo
 echo "✅ Setup complete!"
 echo
 echo "Next steps:"
-echo "1. Edit config.json with your research domain and API keys"
-echo "2. (Optional) Add authors to authors_watchlist.json"
+echo "1. (Optional) Fine-tune config.json for your specific needs"
+echo "2. (Optional) Add more authors to authors_watchlist.json"
 echo "3. Test manually: Ask Clawdbot to 'run the research-agent skill'"
 echo "4. The agent will then run automatically daily!"
 echo
