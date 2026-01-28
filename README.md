@@ -1,6 +1,6 @@
-# Research Agent - Autonomous Paper Digest 🤖
+# Research Agent - Autonomous Research Digest 🤖
 
-A fully autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers in your research domain.
+A fully autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers and trending GitHub repositories in your research domain.
 
 **Built as a Clawdbot sub-agent.**
 
@@ -31,17 +31,20 @@ This isn't just a script that calls an LLM API. It is an **autonomous agent skil
 
 1.  **Cron Trigger**: Daily at 9 AM (default).
 2.  **Agent Spawns**: Clawdbot creates an isolated session for the agent.
-3.  **Fetch**: Uses API tools to get papers (Stage 1)
-4.  **Analyze**: LLM scores every fetched paper (Stage 2)
-5.  **Filter**: Keeps papers ≥ minimum relevance score
-6.  **Report**: Sends digest to Telegram and saves log.
+3.  **Fetch Papers**: Uses API tools to get papers (Stage 1)
+4.  **Analyze Papers**: LLM scores every fetched paper (Stage 2)
+5.  **Filter Papers**: Keeps papers ≥ minimum relevance score
+6.  **Fetch GitHub Trending**: Gets top trending repos from past day
+7.  **Summarize Repos**: LLM explains relevance of top 3 repos to your research
+8.  **Report**: Sends digest to Telegram and saves log.
 
 ## ✨ Features
 
 *   **True Autonomy**: Spawns, runs, and terminates automatically.
 *   **LLM-Based Relevance**: Every paper scored by Claude for semantic relevance (not just keyword matching)
 *   **Broad Discovery**: Keywords fetch candidates; LLM judges quality → catches cross-domain insights
-*   **Multi-Source**: OpenAlex (250M+ works) and arXiv.
+*   **Multi-Source Papers**: OpenAlex (250M+ works) and arXiv.
+*   **GitHub Trending**: Top 3 trending repos from past day with relevance summary
 *   **Domain Agnostic**: Configurable for Food Safety, Physics, AI, Biology, etc.
 *   **No Extra Config**: Uses your existing Clawdbot LLM provider. No separate API keys to manage.
 
@@ -59,7 +62,12 @@ The agent comes equipped with specialized tools to interface with academic datab
 *   **Usage**: `node scripts/fetch_arxiv.js <date> <categories> <keywords>`
 *   **Capabilities**: Filters by specific arXiv categories (e.g., `cs.CV`, `cs.LG`) AND keyword matches to ensure relevance.
 
-### 3. `scripts/setup.sh`
+### 3. `scripts/fetch_github_trending.js`
+*   **Purpose**: Fetch trending GitHub repositories from past day.
+*   **Usage**: `node scripts/fetch_github_trending.js <date> "" <limit>`
+*   **Capabilities**: Searches for repos with activity on target date (≥50 stars), sorted by star count. Returns top N trending repos broadly (not confined to domain keywords).
+
+### 4. `scripts/setup.sh`
 *   **Purpose**: One-shot setup utility.
 *   **Capabilities**: Generates config files, creates data directories, and helps schedule the cron job.
 
