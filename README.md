@@ -8,19 +8,39 @@ A fully autonomous AI research assistant that daily fetches, analyzes, and summa
 
 This isn't just a script that calls an LLM API. It is an **autonomous agent skill** for Clawdbot.
 
+### Two-Stage Process:
+
+**Stage 1: Broad API Fetch (Keyword-Based)**
+- Queries OpenAlex + arXiv APIs using your configured keywords
+- Keywords use **OR logic** - fetches papers mentioning **ANY** keyword
+- Purpose: Cast a wide net (~50-100 papers/day) without fetching all of science
+- Example: "food safety" OR "pathogen" OR "dairy" OR "AI agent" OR ...
+
+**Stage 2: Deep LLM Analysis (Intelligence-Based)**
+- **ALL fetched papers** (not just keyword matches) go to the LLM
+- The agent (Claude) reads each abstract and scores relevance 1-5
+- Scoring based on semantic understanding, not keyword matching
+- Only papers scoring ≥3 make it to your digest
+
+**Why this hybrid approach?**
+- Pure keywords miss nuanced relevance
+- Pure LLM on all papers would cost $50+/day
+- This balances discovery breadth with cost (~$0.15-0.20/day)
+
+### Daily Workflow:
+
 1.  **Cron Trigger**: Daily at 9 AM (default).
 2.  **Agent Spawns**: Clawdbot creates an isolated session for the agent.
-3.  **Mission Read**: The agent (Claude) reads `SKILL.md` to understand its goal.
-4.  **Tools Used**:
-    *   `scripts/fetch_openalex.js` (Journals)
-    *   `scripts/fetch_arxiv.js` (Preprints)
-5.  **Intelligence**: The agent reads the abstracts *itself* and scores them based on your criteria.
-6.  **Reporting**: Sends a digest to Telegram and saves a log.
+3.  **Fetch**: Uses API tools to get papers (Stage 1)
+4.  **Analyze**: LLM scores every fetched paper (Stage 2)
+5.  **Filter**: Keeps papers ≥ minimum relevance score
+6.  **Report**: Sends digest to Telegram and saves log.
 
 ## ✨ Features
 
 *   **True Autonomy**: Spawns, runs, and terminates automatically.
-*   **Deep Analysis**: Evaluates papers for *relevance*, not just keywords.
+*   **LLM-Based Relevance**: Every paper scored by Claude for semantic relevance (not just keyword matching)
+*   **Broad Discovery**: Keywords fetch candidates; LLM judges quality → catches cross-domain insights
 *   **Multi-Source**: OpenAlex (250M+ works) and arXiv.
 *   **Domain Agnostic**: Configurable for Food Safety, Physics, AI, Biology, etc.
 *   **No Extra Config**: Uses your existing Clawdbot LLM provider. No separate API keys to manage.
@@ -76,7 +96,7 @@ Edit `config.json`:
     "name": "Food Safety",
     "keywords": {
       "technical": ["machine learning", "computer vision"],
-      "domain": ["salmonella", "listeria", "pathogen"]
+      "domain": ["salmonella", "listeria", "pathogen", "dairy", "food quality"]
     }
   },
   "output": {
@@ -87,7 +107,14 @@ Edit `config.json`:
   }
 }
 ```
-*Note: No `llm` section needed!*
+
+**Keyword Strategy:**
+- Use **broad terms** to avoid missing relevant papers
+- Add **alternative phrasings** (e.g., "food safety" AND "foodborne")
+- Include **related concepts** (e.g., "dairy", "milk", "cheese")
+- Keywords use OR logic → papers matching ANY keyword get fetched → LLM judges relevance
+
+*Note: No `llm` section needed - uses your Clawdbot provider!*
 
 ### 4. Test
 Ask Clawdbot:
