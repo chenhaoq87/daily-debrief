@@ -34,7 +34,7 @@ This isn't just a script that calls an LLM API. It is an **autonomous agent skil
 3.  **Fetch Papers**: Uses API tools to get papers (Stage 1)
 4.  **Analyze Papers**: LLM scores every fetched paper (Stage 2)
 5.  **Filter Papers**: Keeps papers ≥ minimum relevance score
-6.  **Fetch GitHub Trending**: Gets top trending repos from past day
+6.  **Fetch GitHub Trending**: Scrapes github.com/trending for today's top repos
 7.  **Summarize Repos**: LLM explains relevance of top 3 repos to your research
 8.  **Report**: Sends digest to Telegram and saves log.
 
@@ -44,7 +44,7 @@ This isn't just a script that calls an LLM API. It is an **autonomous agent skil
 *   **LLM-Based Relevance**: Every paper scored by Claude for semantic relevance (not just keyword matching)
 *   **Broad Discovery**: Keywords fetch candidates; LLM judges quality → catches cross-domain insights
 *   **Multi-Source Papers**: OpenAlex (250M+ works) and arXiv.
-*   **GitHub Trending**: Top 3 trending repos from past day with relevance summary
+*   **GitHub Trending**: Top 3 trending repos from github.com/trending with relevance summary
 *   **Domain Agnostic**: Configurable for Food Safety, Physics, AI, Biology, etc.
 *   **No Extra Config**: Uses your existing Clawdbot LLM provider. No separate API keys to manage.
 
