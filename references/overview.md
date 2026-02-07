@@ -12,7 +12,7 @@ This skill provides an autonomous daily research digest: it fetches new papers (
 ## Quick start
 ```bash
 cd ~/clawd/skills
-git clone https://github.com/chenhaoq87/research-agent.git daily-debrief
+git clone https://github.com/chenhaoq87/daily-debrief.git
 cd daily-debrief
 ./scripts/setup.sh
 ```
