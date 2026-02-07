@@ -80,12 +80,12 @@ cat > config.json <<EOF
     "watchlistPath": "authors_watchlist.json"
   },
   "agent": {
-    "comment": "This runs as a Clawdbot sub-agent. The agent (Claude) analyzes papers directly - no external LLM API needed!"
+    "comment": "This runs as a OpenClaw sub-agent. The agent (Claude) analyzes papers directly - no external LLM API needed!"
   },
   "output": {
     "telegram": {
       "enabled": true,
-      "comment": "Uses Clawdbot's default messaging channel"
+      "comment": "Uses OpenClaw's default messaging channel"
     },
     "saveToFile": true,
     "filePath": "digests/"
@@ -186,23 +186,14 @@ if [ "$SETUP_CRON" = "y" ] || [ "$SETUP_CRON" = "Y" ]; then
     esac
     
     echo
-    echo "Setting up cron job with schedule: $CRON_SCHEDULE"
-    
-    # Use clawdbot cron to schedule
-    clawdbot cron add \
-        --name "research-agent-daily" \
-        --message "Run the research-agent skill to find yesterday's research papers, analyze them, and send me a digest" \
-        --cron "$CRON_SCHEDULE" \
-        --session isolated
-    
-    echo "✓ Cron job created!"
+    echo "To schedule the daily run ($CRON_SCHEDULE), use the OpenClaw Dashboard or ask the agent to create a cron job."
+    echo "Example prompt:"
+    echo "  Please schedule the research-agent skill daily at 9 AM UTC."
     echo
-    echo "The agent will run automatically at the scheduled time."
-    echo "Check status with: clawdbot cron list"
+    echo "(This setup script does not call the scheduler directly.)"
 else
     echo
-    echo "Skipped cron setup. To set up later, run:"
-    echo "  clawdbot cron add --text 'Run research-agent skill' --schedule '0 9 * * *'"
+    echo "Skipped cron setup. You can schedule later via the OpenClaw Dashboard or by asking the agent."
 fi
 
 echo
@@ -211,6 +202,6 @@ echo
 echo "Next steps:"
 echo "1. (Optional) Fine-tune config.json for your specific needs"
 echo "2. (Optional) Add more authors to authors_watchlist.json"
-echo "3. Test manually: Ask Clawdbot to 'run the research-agent skill'"
+echo "3. Test manually: Ask OpenClaw to 'run the research-agent skill'"
 echo "4. The agent will then run automatically daily!"
 echo

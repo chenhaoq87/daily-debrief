@@ -257,7 +257,7 @@ After editing `config.json`:
 
 2. **Run manually**:
    ```
-   Ask Clawdbot: "Run the research-agent skill"
+   Ask OpenClaw: "Run the research-agent skill"
    ```
 
 3. **Check the results**:

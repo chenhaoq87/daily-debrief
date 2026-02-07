@@ -317,7 +317,7 @@ If config.json doesn't exist:
 
 ## Example Agent Execution
 
-**Trigger:** Cron runs `clawdbot cron add --text "Run the research-agent skill" --schedule "0 9 * * *"`
+**Trigger:** A daily OpenClaw cron (set via Dashboard or by asking the agent) runs the research-agent skill.
 
 **You wake up and:**
 1. "Reading config.json... Domain: Food Safety Research"

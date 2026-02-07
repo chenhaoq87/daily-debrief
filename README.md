@@ -2,11 +2,11 @@
 
 A fully autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers and trending GitHub repositories in your research domain.
 
-**Built as a Clawdbot sub-agent.**
+**Built as an OpenClaw sub-agent.**
 
 ## 🤖 How It Works
 
-This isn't just a script that calls an LLM API. It is an **autonomous agent skill** for Clawdbot.
+This isn't just a script that calls an LLM API. It is an **autonomous agent skill** for OpenClaw.
 
 ### Two-Stage Process:
 
@@ -30,7 +30,7 @@ This isn't just a script that calls an LLM API. It is an **autonomous agent skil
 ### Daily Workflow:
 
 1.  **Cron Trigger**: Daily at 9 AM (default).
-2.  **Agent Spawns**: Clawdbot creates an isolated session for the agent.
+2.  **Agent Spawns**: OpenClaw creates an isolated session for the agent.
 3.  **Fetch Papers**: Uses API tools to get papers (Stage 1)
 4.  **Analyze Papers**: LLM scores every fetched paper (Stage 2)
 5.  **Filter Papers**: Keeps papers ≥ minimum relevance score
@@ -46,7 +46,7 @@ This isn't just a script that calls an LLM API. It is an **autonomous agent skil
 *   **Multi-Source Papers**: OpenAlex (250M+ works) and arXiv.
 *   **GitHub Trending**: Top 3 trending repos from github.com/trending with relevance summary
 *   **Domain Agnostic**: Configurable for Food Safety, Physics, AI, Biology, etc.
-*   **No Extra Config**: Uses your existing Clawdbot LLM provider. No separate API keys to manage.
+*   **No Extra Config**: Uses your existing OpenClaw LLM provider. No separate API keys to manage.
 
 ## 🛠️ Available Tools
 
@@ -71,15 +71,15 @@ The agent comes equipped with specialized tools to interface with academic datab
 *   **Purpose**: One-shot setup utility.
 *   **Capabilities**: Generates config files, creates data directories, and helps schedule the cron job.
 
-*Note: The agent also utilizes Clawdbot's native capabilities for file I/O and messaging.*
+*Note: The agent also utilizes OpenClaw's native capabilities for file I/O and messaging.*
 
 ## 💰 Cost Note
 
 **This skill does not require a separate LLM API key.**
 
-However, because the agent runs inside Clawdbot, it consumes tokens from your **existing Clawdbot LLM provider** (e.g., OpenRouter, Anthropic, OpenAI).
+However, because the agent runs inside OpenClaw, it consumes tokens from your **existing OpenClaw LLM provider** (e.g., OpenRouter, Anthropic, OpenAI).
 *   **Input**: ~1-2k tokens per run + ~500 tokens per paper analyzed.
-*   **Cost**: Depends on your Clawdbot model configuration (e.g. `haiku` is cheaper than `opus`).
+*   **Cost**: Depends on your OpenClaw model configuration (e.g. `haiku` is cheaper than `opus`).
 
 ## 🚀 Quick Start
 
@@ -122,20 +122,19 @@ Edit `config.json`:
 - Include **related concepts** (e.g., "dairy", "milk", "cheese")
 - Keywords use OR logic → papers matching ANY keyword get fetched → LLM judges relevance
 
-*Note: No `llm` section needed - uses your Clawdbot provider!*
+*Note: No `llm` section needed - uses your OpenClaw provider!*
 
 ### 4. Test
-Ask Clawdbot:
+Ask OpenClaw:
 ```text
 Run the research-agent skill
 ```
 
 ### 5. Automate
-If you didn't use the setup script:
-```bash
-clawdbot cron add \
-  --text "Run the research-agent skill" \
-  --schedule "0 9 * * *"
+Use the OpenClaw Dashboard or ask the agent to schedule a daily run.
+Example prompt:
+```
+Please schedule the research-agent skill daily at 9 AM UTC.
 ```
 
 ## 📂 Project Structure
