@@ -1,6 +1,6 @@
 ---
 name: daily-debrief
-description: Autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers and trending GitHub repositories in your configured research domain. Use when you need to set up or run automated daily digests for any research field (food safety, materials science, drug discovery, etc.). Works as a background agent triggered by cron.
+description: OpenClaw skill for scheduled research digests: fetches new papers from OpenAlex/arXiv, scores relevance with an LLM, summarizes top GitHub trending repos, and delivers a daily brief for any configurable research domain.
 ---
 
 # Daily Debrief - Autonomous Research Digest
