@@ -1,6 +1,6 @@
 # Domain Customization Examples
 
-The research-agent can be adapted to ANY research field by editing `config.json`. Here are examples:
+The daily-debrief can be adapted to ANY research field by editing `config.json`. Here are examples:
 
 ## Food Safety (Default)
 
@@ -257,7 +257,7 @@ After editing `config.json`:
 
 2. **Run manually**:
    ```
-   Ask OpenClaw: "Run the research-agent skill"
+   Ask OpenClaw: "Run the daily-debrief skill"
    ```
 
 3. **Check the results**:

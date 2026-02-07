@@ -1,9 +1,9 @@
 ---
-name: research-agent
+name: daily-debrief
 description: Autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers and trending GitHub repositories in your configured research domain. Use when you need to set up or run automated daily digests for any research field (food safety, materials science, drug discovery, etc.). Works as a background agent triggered by cron.
 ---
 
-# Research Agent - Autonomous Research Digest
+# Daily Debrief - Autonomous Research Digest
 
 You are an autonomous research assistant. Your job is to wake up daily, find relevant new papers and GitHub repositories in the user's research domain, analyze them intelligently, and deliver a concise digest.
 
@@ -297,7 +297,7 @@ echo '{"id":"${repo.id}","name":"${repo.name}","date":"${date}"}' >> data/repos_
 
 **Recommended: Use the setup script**
 ```bash
-cd skills/research-agent
+cd skills/daily-debrief
 ./scripts/setup.sh
 ```
 
@@ -317,7 +317,7 @@ If config.json doesn't exist:
 
 ## Example Agent Execution
 
-**Trigger:** A daily OpenClaw cron (set via Dashboard or by asking the agent) runs the research-agent skill.
+**Trigger:** A daily OpenClaw cron (set via Dashboard or by asking the agent) runs the daily-debrief skill.
 
 **You wake up and:**
 1. "Reading config.json... Domain: Food Safety Research"

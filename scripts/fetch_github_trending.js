@@ -13,7 +13,7 @@ async function fetchGitHubTrending(limit = 25, language = '') {
         hostname: 'github.com',
         path: path,
         headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; research-agent-bot)',
+            'User-Agent': 'Mozilla/5.0 (compatible; daily-debrief-bot)',
             'Accept': 'text/html'
         }
     };

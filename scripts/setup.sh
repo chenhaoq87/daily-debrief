@@ -1,5 +1,5 @@
 #!/bin/bash
-# Setup script for research-agent
+# Setup script for daily-debrief
 # Creates config, directories, and optionally sets up cron job
 
 set -e
@@ -188,7 +188,7 @@ if [ "$SETUP_CRON" = "y" ] || [ "$SETUP_CRON" = "Y" ]; then
     echo
     echo "To schedule the daily run ($CRON_SCHEDULE), use the OpenClaw Dashboard or ask the agent to create a cron job."
     echo "Example prompt:"
-    echo "  Please schedule the research-agent skill daily at 9 AM UTC."
+    echo "  Please schedule the daily-debrief skill daily at 9 AM UTC."
     echo
     echo "(This setup script does not call the scheduler directly.)"
 else
@@ -202,6 +202,6 @@ echo
 echo "Next steps:"
 echo "1. (Optional) Fine-tune config.json for your specific needs"
 echo "2. (Optional) Add more authors to authors_watchlist.json"
-echo "3. Test manually: Ask OpenClaw to 'run the research-agent skill'"
+echo "3. Test manually: Ask OpenClaw to 'run the daily-debrief skill'"
 echo "4. The agent will then run automatically daily!"
 echo

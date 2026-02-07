@@ -1,4 +1,4 @@
-# Research Agent - Autonomous Research Digest 🤖
+# Daily Debrief - Autonomous Research Digest 🤖
 
 A fully autonomous AI research assistant that daily fetches, analyzes, and summarizes new academic papers and trending GitHub repositories in your research domain.
 
@@ -86,8 +86,8 @@ However, because the agent runs inside OpenClaw, it consumes tokens from your **
 ### 1. Install
 ```bash
 cd ~/clawd/skills
-git clone https://github.com/chenhaoq87/research-agent.git
-cd research-agent
+git clone https://github.com/chenhaoq87/research-agent.git daily-debrief
+cd daily-debrief
 ```
 
 ### 2. Setup
@@ -127,14 +127,14 @@ Edit `config.json`:
 ### 4. Test
 Ask OpenClaw:
 ```text
-Run the research-agent skill
+Run the daily-debrief skill
 ```
 
 ### 5. Automate
 Use the OpenClaw Dashboard or ask the agent to schedule a daily run.
 Example prompt:
 ```
-Please schedule the research-agent skill daily at 9 AM UTC.
+Please schedule the daily-debrief skill daily at 9 AM UTC.
 ```
 
 ## 📂 Project Structure
