@@ -1,6 +1,6 @@
 # Daily Debrief — Overview
 
-This skill provides an autonomous daily research digest: it fetches new papers (OpenAlex/arXiv), analyzes relevance, and summarizes top GitHub trending repos for a configured research domain. It runs on a schedule via OpenClaw (cron/Dashboard) and posts a concise digest.
+This skill provides an autonomous daily research digest: it fetches new papers (OpenAlex/arXiv), summarizes top GitHub trending repos, and includes industry news (recalls/outbreaks/regulatory) for a configured research domain. Default domain: food safety. It runs on a schedule via OpenClaw (cron/Dashboard) and posts a concise digest.
 
 ## How it works (high level)
 1. Fetch candidates (OpenAlex + arXiv) based on broad keywords.

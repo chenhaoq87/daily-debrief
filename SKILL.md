@@ -1,6 +1,6 @@
 ---
 name: daily-debrief
-description: OpenClaw skill for scheduled research digests: fetches new papers from OpenAlex/arXiv, scores relevance with an LLM, summarizes top GitHub trending repos, and delivers a daily brief for any configurable research domain.
+description: OpenClaw skill for scheduled research digests (papers, GitHub Trending, and industry news). Default domain: food safety; configurable for any research field.
 ---
 
 # Daily Debrief - Autonomous Research Digest
@@ -13,9 +13,10 @@ When triggered (usually via cron), you:
 
 1. **Load config** - Understand the user's research domain and preferences
 2. **Fetch papers & repos** - Get yesterday's papers from OpenAlex and arXiv, plus trending GitHub repos
+2b. **Fetch media sources** - Get industry news, recalls, and outbreak reports from 5 sources
 3. **Analyze relevance** - Use your LLM intelligence to score papers/repos 1-5
 4. **Check watchlist** - Flag papers by tracked authors
-5. **Format digest** - Create readable Telegram/file output with both papers and repos
+5. **Format digest** - Create readable Telegram/file output with papers, repos, AND industry news
 6. **Deliver** - Post to Telegram or save to file
 7. **Update history** - Track what you've seen
 
@@ -114,6 +115,56 @@ Returns standardized repository objects:
 }
 ```
 
+### Fetch Media Sources (Industry News, Recalls, Outbreaks)
+
+**Combined media fetcher:**
+```bash
+node scripts/fetch_media_sources.js [--days N] [--since YYYY-MM-DD] [--sources all|fsn,fsm,fda,fsis,cdc]
+# Fetches from all 5 media sources, deduplicates, and merges
+# Returns: JSON array of standardized media items
+```
+
+**Individual source scripts:**
+```bash
+# Food Safety News (RSS)
+node scripts/fetch_food_safety_news.js [--days N] [--since YYYY-MM-DD]
+
+# Food Safety Magazine (RSS, multiple topics)
+node scripts/fetch_food_safety_magazine.js [--days N] [--since YYYY-MM-DD] [--topics 305,306,309,311,312,313]
+
+# FDA Food Recalls (openFDA API)
+node scripts/fetch_fda_recalls.js [--days N] [--since YYYY-MM-DD] [--limit N]
+
+# USDA FSIS Recalls (scrape + openFDA fallback for meat/poultry/eggs)
+node scripts/fetch_fsis_recalls.js [--days N] [--since YYYY-MM-DD]
+
+# CDC Outbreak Investigations (multi-strategy: API + scrape)
+node scripts/fetch_cdc_outbreaks.js [--days N] [--since YYYY-MM-DD]
+```
+
+All return standardized media objects:
+```json
+{
+  "source_type": "media",
+  "sources": ["Food Safety News", "FDA"],
+  "source_urls": ["https://...", "https://..."],
+  "title": "Firm Recalls Product (Class I)",
+  "summary": "Products may be contaminated with...",
+  "date": "2026-01-28",
+  "category": "Recall|Outbreak|Policy|Research|Alert",
+  "severity": "high|medium|low",
+  "pathogen": "Salmonella",
+  "product": "ground beef",
+  "states": ["CA", "NY"],
+  "recall_number": "H-0393-2026",
+  "tags": ["Microbiological"]
+}
+```
+
+**Source key:** fsn=Food Safety News, fsm=Food Safety Magazine, fda=FDA, fsis=USDA FSIS, cdc=CDC
+
+**Deduplication:** The combined script automatically merges duplicate items (same recall across multiple sources) by matching on recall number, title similarity, and pathogen+product combo. Merged items list all contributing sources.
+
 ### Check History
 
 Load `data/papers_history.jsonl` to see what papers you've already reported.
@@ -164,6 +215,26 @@ node scripts/fetch_github_trending.js 30
 
 Combine papers into one array and keep repos separate. Repos are scraped from GitHub's official trending page - no filtering needed, just take top N.
 
+### 2b. Fetch Media Sources (Industry News & Alerts)
+
+Fetch industry news, recalls, and outbreak reports in parallel with papers:
+
+```bash
+# Fetch all media sources for the past 1 day (yesterday's news)
+node scripts/fetch_media_sources.js --days 1
+```
+
+This fetches from 5 sources simultaneously:
+- **Food Safety News** — RSS feed of industry news
+- **Food Safety Magazine** — RSS feeds across 6 topic areas (recalls, risk, chemical, allergen, microbiological, physical)
+- **FDA Food Recalls** — openFDA enforcement API (Class I/II/III recalls)
+- **USDA FSIS Recalls** — Meat/poultry/egg recalls (scrape + FDA fallback)
+- **CDC Outbreaks** — Active outbreak investigations (media API + page scrape)
+
+The script automatically deduplicates items that appear in multiple sources (e.g., the same Salmonella recall in both FDA data and Food Safety News coverage), merging them into a single entry with all source citations.
+
+Store media items separately from papers — they go in the "Industry News & Alerts" section of the digest.
+
 ### 3. Analyze Relevance with LLM (YOUR INTELLIGENCE HERE)
 
 **No keyword pre-filtering!** Pass ALL fetched papers directly to LLM for analysis.
@@ -177,12 +248,12 @@ Analyze this paper for ${config.domain.name} relevance:
 Title: ${paper.title}
 Abstract: ${paper.abstract.substring(0, 600)}
 
-Rate 1-5:
-- 5 = Core focus on AI/ML for ${domain} (e.g., "Deep learning for pathogen detection")
-- 4 = Strong application
-- 3 = Moderate relevance
-- 2 = Weak (AI or domain mentioned in passing)
-- 1 = Not relevant
+Rate 1-5 (scope: AI/ML applied to food systems + AI for scientific research automation):
+- 5 = Core focus on AI/ML for food safety/quality OR AI/GenAI systems that automate scientific production/research (e.g., Paper2Agent, virtual lab, agentic discovery, automated experiment design)
+- 4 = Strong AI/ML application to food systems (dairy, meat, produce, pathogens) OR concrete AI system improving scientific workflows
+- 3 = Moderate relevance (AI/ML methods applied to food systems or food-adjacent agriculture). Must involve actual AI/ML techniques.
+- 2 = Weak (AI or food safety mentioned but not central; no actual AI methodology)
+- 1 = Not relevant (no AI/ML component, or unrelated domain)
 
 Also categorize into ONE of: ${config.domain.categories.join(', ')}
 
@@ -196,9 +267,9 @@ Only keep papers scoring >= `config.filters.minRelevanceScore`.
 
 **Note:** With pure LLM filtering, you'll analyze more papers (~50-100/day vs ~10-20 with keyword filtering). This increases API costs slightly (~$0.15-0.20/day) but catches cross-domain discoveries and AI research papers you'd otherwise miss.
 
-### 4. Select Top 3 Trending Repos
+### 4. Select Top 5 Trending Repos
 
-Take the top 3 repos by stars from the fetch results. No LLM filtering needed - just show what's genuinely trending across all of tech/GitHub for that day.
+Take the top 5 repos by stars from the fetch results. No LLM filtering needed - just show what's genuinely trending across all of tech/GitHub for that day.
 
 ### 5. Check for Duplicates
 
@@ -233,19 +304,30 @@ ${abstract.substring(0, 200)}...
 [Read Full Paper](${url})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-*🔥 Top 3 Trending Repos (Past Day)*
+*🔥 Top 5 Trending Repos (Past Day)*
 
 💻 *${repo.name}*
 ⭐ ${repo.stars} stars | ${repo.language}
 ${repo.description}
 [View Repository](${repo.url})
 
-_(After listing all 3 repos, add an LLM-generated summary)_
+*🚨 Industry News & Alerts (Past Day)*
+
+(Group by category: Recalls first, then Outbreaks, then Policy/Research)
+
+🔴 *${title}* (${severity})
+📰 ${sources.join(' + ')} | 📅 ${date}
+🦠 ${pathogen} | 🥩 ${product} | 📍 ${states.join(', ')}
+${summary.substring(0, 200)}...
+[Read More](${source_urls[0]})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+_(After listing all sections, add an LLM-generated summary)_
 
 **Why these matter to you:**
 ${one_paragraph_summary_explaining_relevance_to_your_research}
 
-(Analyzed ${totalCandidates} paper candidates, ${totalRepoCandidates} repos)
+(Analyzed ${totalCandidates} paper candidates, ${totalRepoCandidates} repos, ${mediaItems} media items)
 ```
 
 **Category emojis (papers):**
@@ -256,7 +338,19 @@ ${one_paragraph_summary_explaining_relevance_to_your_research}
 - Predictive Modeling: 📈
 - Other: 📋
 
-Limit to `config.filters.maxPapersPerDigest` top papers and top 3 trending repos.
+**Category emojis (media items):**
+- Recall: 🔴
+- Outbreak: 🚨
+- Alert: ⚠️
+- Policy: 📜
+- Research: 🔬
+
+**Severity indicators (media items):**
+- high: 🔴 (Class I recalls, deaths, hospitalizations)
+- medium: 🟡 (Class II recalls, outbreaks, contamination)
+- low: 🟢 (Class III, policy updates, research)
+
+Limit to `config.filters.maxPapersPerDigest` top papers and top 5 trending repos.
 
 ### 8. Deliver
 
@@ -278,13 +372,39 @@ Save to `${config.output.filePath}/digest_${date}.txt`
 
 Append each reported paper to `data/papers_history.jsonl`:
 ```bash
-echo '{"id":"${paper.id}","doi":"${paper.doi}","date":"${date}"}' >> data/papers_history.jsonl
+echo '{"id":"${paper.id}","doi":"${paper.doi}","date":"${date}","title":"${paper.title}"}' >> data/papers_history.jsonl
 ```
 
 Append each reported repo to `data/repos_history.jsonl`:
 ```bash
 echo '{"id":"${repo.id}","name":"${repo.name}","date":"${date}"}' >> data/repos_history.jsonl
 ```
+
+### 10. Save Media History
+
+After delivering the digest, save media items to history for deduplication and memory sync:
+
+```bash
+# For each media item included in the digest:
+echo '{"source_type":"media","sources":["Food Safety News","FDA"],"source_urls":["https://..."],"title":"...","summary":"...","date":"2026-01-28","category":"Recall","severity":"high","pathogen":"Salmonella","product":"ground beef"}' >> data/media_history.jsonl
+```
+
+This tracks what media items have been reported to avoid duplicates in future digests.
+
+### 11. Sync to Memory (IMPORTANT — ALWAYS RUN LAST!)
+
+After updating all history files, sync EVERYTHING to the user's research memory:
+
+```bash
+node scripts/sync_to_memory.js
+```
+
+This script syncs:
+- **Papers** → `memory/research/all_papers.json` + `papers_index.md` (full OpenAlex metadata, 📬 tags)
+- **Media items** → `memory/research/media_history.json` + `media_index.md` (recalls, outbreaks, news, rolling 500-item archive)
+- **Digest log** → `memory/research/digest_log.jsonl` (timestamp + counts per run)
+
+**Why this matters:** The user's research memory (`memory/research/`) is their persistent knowledge base. Every debrief should leave a trace — papers, recalls, outbreaks, and news are all searchable and accessible for future reference.
 
 ## Error Handling
 
@@ -322,13 +442,16 @@ If config.json doesn't exist:
 **You wake up and:**
 1. "Reading config.json... Domain: Food Safety Research"
 2. "Fetching yesterday's papers and trending GitHub repos (2026-01-26)..."
-3. "Found 47 candidates from OpenAlex, 3 from arXiv, 30 from GitHub"
-4. "Analyzing paper relevance..." (process each paper)
-5. "3 papers scored 4+, selecting top 3 trending repos, formatting digest..."
-6. "Posting to Telegram..." (use message tool)
-7. "Updating history... Done! 🎉"
+3. "Fetching media sources (recalls, outbreaks, industry news)..."
+4. "Found 47 candidates from OpenAlex, 3 from arXiv, 30 from GitHub, 46 media items"
+5. "Analyzing paper relevance..." (process each paper)
+6. "3 papers scored 4+, selecting top 3 trending repos, curating top media alerts..."
+7. "Posting to Telegram..." (use message tool)
+8. "Updating history..."
+9. "Syncing to memory/research..." (run sync_to_memory.js)
+10. "Done! 🎉"
 
-**User wakes up to digest in Telegram. Zero interaction needed.**
+**User wakes up to digest in Telegram with papers, repos, AND industry news. Papers automatically added to research memory.**
 
 ## Multi-Domain Support
 

@@ -1,13 +1,13 @@
 #!/bin/bash
 # Setup script for daily-debrief
-# Creates config, directories, and optionally sets up cron job
+# Creates config, directories, and optionally guides cron setup
 
 set -e
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$SKILL_DIR"
 
-echo "🔬 Research Agent Setup Wizard"
+echo "🔬 Daily Debrief Setup Wizard"
 echo "============================="
 echo
 
