@@ -239,6 +239,8 @@ Store media items separately from papers — they go in the "Industry News & Ale
 
 **No keyword pre-filtering!** Pass ALL fetched papers directly to LLM for analysis.
 
+**Hard gate:** If `abstract` is empty/missing (or only whitespace), **reject immediately** (set relevance=1) and **exclude from the digest**. Do not send these to the LLM.
+
 For each paper, analyze deeply:
 
 **Prompt yourself:**
@@ -304,7 +306,7 @@ ${abstract.substring(0, 200)}...
 [Read Full Paper](${url})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-*🔥 Top 5 Trending Repos (Past Day)*
+*🔥 Top 5 Trending Repos (Today)*
 
 💻 *${repo.name}*
 ⭐ ${repo.stars} stars | ${repo.language}
